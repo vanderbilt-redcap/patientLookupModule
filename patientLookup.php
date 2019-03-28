@@ -16,14 +16,18 @@ require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 </div>
 
 <script type='text/javascript'>
+	var delayTimer;
 	function lookupPatient(string) {
-		$.ajax({
-			method:"POST",
-			url: "<?php echo $module->getUrl("patientSearchAjax.php"); ?>",
-			data: { searchValue: string }
-		}).done(function(html) {
-			$('#patient_results').html(html);
-		});
+		clearTimeout(delayTimer);
+		delayTimer = setTimeout(function() {
+			$.ajax({
+				method:"POST",
+				url: "<?php echo $module->getUrl("patientSearchAjax.php"); ?>",
+				data: { searchValue: string }
+			}).done(function(html) {
+				$('#patient_results').html(html);
+			});
+		}, 500);
 	}
 </script>
 

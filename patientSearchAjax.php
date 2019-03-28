@@ -9,7 +9,6 @@ if($project == "") {
 $lookupFields = $module->getProjectSetting("matching-fields");
 
 $searchValue = strtolower($_POST['searchValue']);
-$searchValue = "ky";
 
 if(count($lookupFields) == 0 && $searchValue == "") die();
 
@@ -43,3 +42,10 @@ foreach($lookupFields as $fieldKey => $fieldName) {
 $sql .= ")";
 
 $q = db_query($sql);
+
+$recordIds = [];
+while($row = db_fetch_assoc($q)) {
+	$recordIds[] = $row["record"];
+}
+
+var_dump($recordIds);
