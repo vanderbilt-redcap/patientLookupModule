@@ -1,0 +1,55 @@
+{
+	"name": "PatientLookupModule",
+
+	"namespace": "RedcapAfrica\\PatientLookupModule",
+
+	"description": "Replaces add/edit records with a patient lookup page which only allows you to create a record if the patient doesn&#039;t exist",
+
+	"documentation": "README.md",
+
+	"authors": [
+		{
+			"name": "Kyle McGuffin",
+			"email": "kyle.mcguffin@vumc.org",
+			"institution": "Vanderbilt University Medical Center"
+		}
+	],
+
+	"permissions": [
+		"redcap_every_page_top"
+	],
+	
+	"enable-every-page-hooks-on-system-pages": false,	
+
+	"links": {
+		"project": [
+
+		],
+		"control-center": [
+
+		]
+	},
+
+	"no-auth-pages": [
+
+	],
+
+	"project-settings": [
+
+	],
+
+	"system-settings": [
+
+	],
+
+	"crons": [
+
+	],
+
+	"compatibility": {
+		"php-version-min": "",
+		"php-version-max": "",
+		"redcap-version-min": "",
+		"redcap-version-max": ""
+	}
+}
