@@ -35,7 +35,12 @@
 	],
 
 	"project-settings": [
-
+		{
+			"key":"matching-fields",
+			"type":"field-list",
+			"name": "Fields to match patient identity",
+			"repeatable":true
+		}
 	],
 
 	"system-settings": [
