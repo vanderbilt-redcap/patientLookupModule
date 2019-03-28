@@ -19,7 +19,8 @@ require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 	function lookupPatient(string) {
 		$.ajax({
 			method:"POST",
-			url: "<?php echo $module->getUrl("patientSearchAjax.php"); ?>"
+			url: "<?php echo $module->getUrl("patientSearchAjax.php"); ?>",
+			data: { searchValue: string }
 		}).done(function(html) {
 			$('#patient_results').html(html);
 		});
