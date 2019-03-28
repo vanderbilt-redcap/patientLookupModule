@@ -40,6 +40,13 @@
 			"type":"field-list",
 			"name": "Fields to match patient identity",
 			"repeatable":true
+		},
+
+		{
+			"key":"display-fields",
+			"type":"field-list",
+			"name": "Fields to display in patient search results",
+			"repeatable":true
 		}
 	],
 
