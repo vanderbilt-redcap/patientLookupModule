@@ -5,7 +5,7 @@ if($project == "") {
 	throw new Exception("No project selected");
 }
 
-/* @var $module RedcapAfrica\PatientLookupModule\PatientLookupModule */
+/* @var $module RedcapAfrica\OrganRegistryModule\OrganRegistryModule */
 $lookupFields = $module->getProjectSetting("matching-fields");
 $displayFields = $module->getProjectSetting("display-fields");
 

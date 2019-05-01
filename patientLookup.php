@@ -7,7 +7,7 @@ if($project == "") {
 }
 
 
-/* @var $module RedcapAfrica\PatientLookupModule\PatientLookupModule */
+/* @var $module RedcapAfrica\OrganRegistryModule\OrganRegistryModule */
 require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 
 echo "<link rel=\"stylesheet\" href=\"".$module->getUrl(__DIR__."/css/style.css")."\" />";
