@@ -40,12 +40,38 @@
 
 	"project-settings": [
 		{
-			"key":"matching-fields",
-			"type":"field-list",
-			"name": "Fields to match patient identity",
-			"repeatable":true
+			"key":"patient-matching-fields",
+			"type":"sub_settings",
+			"name": "Fields to find recipients",
+			"repeatable": true,
+			"sub_settings": [
+				{
+					"key":"search-fields",
+					"type":"field-list",
+					"name": "Fields to display on search form"
+				},
+				{
+					"key":"matching-fields",
+					"type":"field-list",
+					"name": "Matching field to match patient identity"
+				},
+				{
+					"key":"matching-logic",
+					"type":"dropdown",
+					"name": "Matching logic",
+					"choices": [
+						{
+							"name": "NOT EQUALS",
+							"value": "not"
+						},
+						{
+							"name": "EQUALS",
+							"value": "equals"
+						}
+					]
+				}
+			]
 		},
-
 		{
 			"key":"display-fields",
 			"type":"field-list",
