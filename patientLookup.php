@@ -13,7 +13,7 @@ require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 echo "<link rel=\"stylesheet\" href=\"".$module->getUrl(__DIR__."/css/style.css")."\" />";
 echo "<span>Search for Organ Recipient</span><br />";
 
-$lookupFields = $module->getProjectSetting("matching-fields");
+$lookupFields = $module->getProjectSetting("search-fields");
 $metadata = $module->getMetadata($project);
 
 foreach($lookupFields as $thisField) {
@@ -27,10 +27,10 @@ foreach($lookupFields as $thisField) {
 			echo "<span>$label</span> <input type='checkbox' value='$value' name='$thisField-$value' /><br />";
 		}
 	}
-	else if(in_array($metadata[$thisField]["field_type"],["radio","select","yesno","truefalse","sql"])) {
+	else if(in_array($metadata[$thisField]["field_type"],["radio","dropdown","yesno","truefalse","sql"])) {
 		switch($metadata[$thisField]["field_type"]) {
 			case "radio":
-			case "select":
+			case "dropdown":
 				$options = $module->getChoiceLabels($thisField);
 				break;
 			case "yesno":
@@ -44,7 +44,7 @@ foreach($lookupFields as $thisField) {
 				break;
 		}
 
-		echo "<select name='$thisField'>";
+		echo "<select name='$thisField'><option value=''></option>";
 
 		foreach($options as $value => $label) {
 			echo "<option value='$value'>$label</option>";
