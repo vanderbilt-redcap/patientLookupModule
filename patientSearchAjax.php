@@ -26,10 +26,22 @@ $sql .= ")";
 
 $q = db_query($sql);
 
-$recordIds = [];
+$recordData = [];
 while($row = db_fetch_assoc($q)) {
-	$recordIds[] = $row["record"];
+	if(array_key_exists($row["field_name"],$recordData[$row["record"]])) {
+		if(!is_array($recordData[$row["record"]][$row["field_name"]])) {
+			$recordData[$row["record"]][$row["field_name"]] = [$recordData[$row["record"]][$row["field_name"]]];
+		}
+		$recordData[$row["record"]][$row["field_name"]][] = $row["value"];
+	}
+	else {
+		$recordData[$row["record"]][$row["field_name"]] = $row["value"];
+	}
 }
+
+## TODO Now need to do the matching here
+$recordIds = [];
+
 
 foreach($recordIds as $recordId) {
 	$displayString = "";
