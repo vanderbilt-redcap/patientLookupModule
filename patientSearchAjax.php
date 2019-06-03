@@ -6,13 +6,21 @@ if($project == "") {
 }
 
 /* @var $module RedcapAfrica\OrganRegistryModule\OrganRegistryModule */
+$searchFields = $module->getProjectSetting("search-fields");
 $lookupFields = $module->getProjectSetting("matching-fields");
-$displayFields = $module->getProjectSetting("display-fields");
 $logicTypes = $module->getProjectSetting("matching-logic");
+$displayFields = $module->getProjectSetting("display-fields");
 
-$searchValue = strtolower($_POST['searchValue']);
+if(count($lookupFields) == 0 || count($searchFields) == 0) die();
 
-if(count($lookupFields) == 0 && $searchValue == "") die();
+## Get submitted form data
+
+$searchData = [];
+foreach($searchFields as $fieldKey => $thisField) {
+	if((is_array($_POST[$thisField]) && count($thisField) > 0) || (!is_array($_POST[$thisField] && $_POST[$thisField] != ""))) {
+		$searchData[$fieldKey] = $_POST[$thisField];
+	}
+}
 
 $sql = "SELECT d.record,d.field_name,d.value
 		FROM redcap_data d
@@ -41,6 +49,34 @@ while($row = db_fetch_assoc($q)) {
 
 ## TODO Now need to do the matching here
 $recordIds = [];
+
+foreach($recordData as $recordId => $recordDetails) {
+	$recordMatches = true;
+
+	## Loop through this record's searchable fields and compare to the form data submitted
+	foreach($searchData as $fieldKey => $searchValue) {
+		if($searchValue == "") continue;
+
+		$lookupField = $lookupFields[$fieldKey];
+		$logicType = $logicTypes[$fieldKey];
+
+		if(is_array($recordDetails[$lookupField])) {
+			$fieldMatches = in_array($searchValue,$recordDetails[$lookupField]);
+		}
+		else {
+			$fieldMatches = ($searchValue == $recordDetails[$lookupField]);
+		}
+
+		if(($logicType == "not" && $fieldMatches) || ($logicType == "equals" && !$fieldMatches)) {
+			$recordMatches = false;
+			break;
+		}
+	}
+
+	if($recordMatches) {
+		$recordIds[] = $recordId;
+	}
+}
 
 
 foreach($recordIds as $recordId) {

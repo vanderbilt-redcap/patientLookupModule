@@ -16,15 +16,18 @@ echo "<span>Search for Organ Recipient</span><br />";
 $lookupFields = $module->getProjectSetting("search-fields");
 $metadata = $module->getMetadata($project);
 
+echo "<form id='searchForm'>";
+
 foreach($lookupFields as $thisField) {
-	echo "<div class='configDiv'>";
-	echo "<h4>".$metadata[$thisField]["field_label"]."</h4>";
+	echo "<div class='configDiv row'>";
+	echo "<div class='col-md-4'><h4>".$metadata[$thisField]["field_label"]."</h4></div>";
+	echo "<div class='col-md-8'>";
 
 	if($metadata[$thisField]["field_type"] == "checkbox") {
 		$options = $module->getChoiceLabels($thisField);
 
 		foreach($options as $value => $label) {
-			echo "<span>$label</span> <input type='checkbox' value='$value' name='$thisField-$value' /><br />";
+			echo "<span>$label</span> <input type='checkbox' class='searchField' value='$value' name='$thisField-$value' /><br />";
 		}
 	}
 	else if(in_array($metadata[$thisField]["field_type"],["radio","dropdown","yesno","truefalse","sql"])) {
@@ -44,7 +47,7 @@ foreach($lookupFields as $thisField) {
 				break;
 		}
 
-		echo "<select name='$thisField'><option value=''></option>";
+		echo "<select name='$thisField' class='searchField'><option value=''></option>";
 
 		foreach($options as $value => $label) {
 			echo "<option value='$value'>$label</option>";
@@ -53,18 +56,19 @@ foreach($lookupFields as $thisField) {
 		echo "</select>";
 	}
 	else {
-	    echo "<input type='text' name='$thisField' />";
+	    echo "<input type='text' class='searchField' name='$thisField' />";
     }
 	
-	echo "</div>";
+	echo "</div></div>";
 }
+
+echo "<input type='button' onclick='lookupPatient();' value='Submit' />";
 
 ?>
 <div id='patient_results'>
 </div>
 
 <script type='text/javascript'>
-	var delayTimer;
 	function lookupPatient() {
 		var searchData = [];
 
