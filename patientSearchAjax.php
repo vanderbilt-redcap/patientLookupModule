@@ -55,6 +55,8 @@ foreach($recordData as $recordId => $recordDetails) {
 
 	## Loop through this record's searchable fields and compare to the form data submitted
 	foreach($searchData as $fieldKey => $searchValue) {
+		error_log("Organ $recordId: Checking if $searchValue ".$logicTypes[$fieldKey]." ".$lookupFields[$fieldKey]);
+
 		if($searchValue == "") continue;
 
 		$lookupField = $lookupFields[$fieldKey];
@@ -72,6 +74,7 @@ foreach($recordData as $recordId => $recordDetails) {
 			break;
 		}
 	}
+	error_log("Organ $recordId: ".($recordMatches ? "matches" : "NO MATCH"));
 
 	if($recordMatches) {
 		$recordIds[] = $recordId;

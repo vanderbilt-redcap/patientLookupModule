@@ -70,16 +70,16 @@ echo "<input type='button' onclick='lookupPatient();' value='Submit' />";
 
 <script type='text/javascript'>
 	function lookupPatient() {
-		var searchData = [];
+		var searchData = {};
 
 		$('.searchField').each(function() {
 			searchData[$(this).attr('name')] = (($(this).attr('type') != 'checkbox' || $(this).prop('checked')) ? $(this).val() : "");
 		});
 
 		$.ajax({
-			method:"POST",
+			type:"POST",
 			url: "<?php echo $module->getUrl("patientSearchAjax.php"); ?>",
-			data: { searchValue: searchData }
+			data: searchData
 		}).done(function(html) {
 			$('#patient_results').html(html);
 		});
