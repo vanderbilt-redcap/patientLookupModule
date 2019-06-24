@@ -47,7 +47,7 @@ while($row = db_fetch_assoc($q)) {
 	}
 }
 
-## TODO Now need to do the matching here
+## Now need to do the matching here
 $recordIds = [];
 
 foreach($recordData as $recordId => $recordDetails) {
@@ -97,6 +97,44 @@ foreach($recordIds as $recordId) {
 	$metadata = $module->getMetadata($project);
 
 	foreach($displayFields as $thisField) {
+		if($metadata[$thisField]["field_type"] == "checkbox") {
+			$displayString = "";
+
+			$options = $module->getChoiceLabels($thisField);
+
+			foreach($options as $value => $label) {
+				if(in_array($value,$displayData[$thisField])) {
+					$displayString .= ($displayString != "" ? ", " : "").$label;
+				}
+			}
+
+			$displayData[$thisField] = $displayString;
+		}
+		else if(in_array($metadata[$thisField]["field_type"],["radio","dropdown","yesno","truefalse","sql"])) {
+			switch($metadata[$thisField]["field_type"]) {
+				case "radio":
+				case "dropdown":
+					$options = $module->getChoiceLabels($thisField);
+					break;
+				case "yesno":
+					$options = [1 => "yes", 0 => "no"];
+					break;
+				case "truefalse":
+					$options = [1 => "true", 0 => "false"];
+					break;
+				case "sql":
+					$options = [];
+					break;
+			}
+
+			foreach($options as $value => $label) {
+				if($value == $displayData[$thisField]) {
+					$displayData[$thisField] = $label;
+					break;
+				}
+			}
+		}
+
 		$displayString .= $metadata[$thisField]["field_label"]." : ".$displayData[$thisField]."<br />";
 	}
 
