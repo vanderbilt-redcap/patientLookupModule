@@ -30,7 +30,7 @@ foreach($lookupFields as $fieldKey => $fieldName) {
 	$sql .= ($fieldKey == 0 ? "" : ", ")."'".$fieldName."'";
 }
 
-$sql .= ")";
+$sql .= ") AND d.project_id = '".db_escape($project)."";
 
 $q = db_query($sql);
 
