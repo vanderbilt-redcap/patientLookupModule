@@ -62,7 +62,8 @@ foreach($lookupFields as $thisField) {
 	echo "</div></div>";
 }
 
-echo "<input type='button' onclick='lookupPatient();' value='Submit' />";
+echo "<input type='button' onclick='lookupPatient();' value='Submit' /><br /><br />";
+
 
 ?>
 <div id='patient_results'>
@@ -70,6 +71,8 @@ echo "<input type='button' onclick='lookupPatient();' value='Submit' />";
 
 <script type='text/javascript'>
 	function lookupPatient() {
+		$("#patient_results").html("<img src='<?=APP_PATH_IMAGES?>progress.gif' />");
+
 		var searchData = {};
 
 		$('.searchField').each(function() {

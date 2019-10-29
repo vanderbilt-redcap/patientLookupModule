@@ -145,5 +145,5 @@ foreach($recordIds as $recordId) {
 }
 
 if(count($recordIds) == 0 ) {
-	echo "<button onclick='alert(app_path_webroot_full+app_path_webroot+page+\"?pid=\"+pid+\"&id=672&auto=1&arm=\"+($(\"#arm_name_newid\").length))' >Add New Record</button>";
+	echo "No matching records found";
 }
