@@ -17,6 +17,8 @@ if(count($lookupFields) == 0 || count($searchFields) == 0) die();
 
 $searchData = [];
 foreach($searchFields as $fieldKey => $thisField) {
+	if($thisField == "") continue;
+
 	if((is_array($_POST[$thisField]) && count($thisField) > 0) || (!is_array($_POST[$thisField] && $_POST[$thisField] != ""))) {
 		$searchData[$fieldKey] = $_POST[$thisField];
 	}
@@ -27,12 +29,19 @@ $sql = "SELECT d.record,d.field_name,d.value
 		WHERE d.field_name IN (";
 
 foreach($lookupFields as $fieldKey => $fieldName) {
+	if($fieldName == "") continue;
+
 	$sql .= ($fieldKey == 0 ? "" : ", ")."'".$fieldName."'";
 }
 
-$sql .= ") AND d.project_id = '".db_escape($project)."";
+$sql .= ") AND d.project_id = '".db_escape($project)."'";
 
 $q = db_query($sql);
+
+if($e = db_error()) {
+	var_dump($e);
+	die();
+}
 
 $recordData = [];
 while($row = db_fetch_assoc($q)) {
@@ -59,6 +68,8 @@ foreach($recordData as $recordId => $recordDetails) {
 
 		$lookupField = $lookupFields[$fieldKey];
 		$logicType = $logicTypes[$fieldKey];
+
+		if($lookupField == "") continue;
 
 		if(is_array($recordDetails[$lookupField])) {
 			$fieldMatches = in_array($searchValue,$recordDetails[$lookupField]);
@@ -97,6 +108,8 @@ foreach($recordIds as $recordId) {
 	$metadata = $module->getMetadata($project);
 
 	foreach($displayFields as $thisField) {
+		if($thisField == "") continue;
+
 		if($metadata[$thisField]["field_type"] == "checkbox") {
 			$displayString = "";
 
@@ -139,7 +152,7 @@ foreach($recordIds as $recordId) {
 	}
 
 	## Add button to edit record to results
-	$displayString .= "<button onclick='window.location.href=app_path_webroot_full+app_path_webroot+\"DataEntry/record_home.php?pid=\"+pid+\"&id=".$recordId."'>Go to Record</button><Br />";
+	$displayString .= "<button onclick='window.location.href=\"".rtrim(APP_PATH_WEBROOT_FULL,"/").APP_PATH_WEBROOT."DataEntry/record_home.php?pid=".$project."&id=".$recordId."\";return false;'>Go to Record</button><Br />";
 
 	echo "<div style='border:solid black 1px; width:200px' >$displayString</div>";
 }
