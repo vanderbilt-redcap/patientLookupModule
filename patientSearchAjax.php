@@ -24,6 +24,11 @@ foreach($searchFields as $fieldKey => $thisField) {
 	}
 }
 
+if($_SESSION['debug_logging'] == "on") {
+	echo "Search Data:<br />";
+	echo "<pre>";var_dump($searchData);echo "</pre>";
+}
+
 $sql = "SELECT d.record,d.field_name,d.value,d.instance
 		FROM redcap_data d
 		WHERE d.field_name IN (";
@@ -55,6 +60,12 @@ while($row = db_fetch_assoc($q)) {
 		$recordData[$row["record"]][$row["field_name"]] = $row["value"];
 	}
 }
+
+if($_SESSION['debug_logging'] == "on") {
+	echo "Lookup Field Data:<br />";
+	echo "<pre>";var_dump($recordData);echo "</pre>";
+}
+
 
 ## Now need to do the matching here
 $recordIds = [];
@@ -94,10 +105,21 @@ foreach($recordData as $recordId => $recordDetails) {
 }
 
 $repeatingFields = [];
+$recordCount = 0;
 
 foreach($recordIds as $recordId) {
+	$recordCount++;
+	## Don't display more than 10 records
+	if($recordCount > 10) {
+		break;
+	}
 	$displayString = "";
 	$recordDetails = $module->getData($project,$recordId);
+
+	if($_SESSION['debug_logging'] == "on" && $recordCount == 1) {
+		echo "Get Data Results:<br />";
+		echo "<pre>";var_dump($recordDetails);echo "</pre>";
+	}
 
 	$displayData = [];
 	foreach($recordDetails as $recordId => $eventDetails) {

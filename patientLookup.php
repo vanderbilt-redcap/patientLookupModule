@@ -10,6 +10,13 @@ if($project == "") {
 /* @var $module RedcapAfrica\OrganRegistryModule\OrganRegistryModule */
 require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 
+if($_GET['debug_logging'] == "on") {
+	$_SESSION['debug_logging'] = "on";
+}
+if($_GET['debug_logging'] == "off") {
+	$_SESSION['debug_logging'] = "off";
+}
+
 echo "<link rel=\"stylesheet\" href=\"".$module->getUrl(__DIR__."/css/style.css")."\" />";
 echo "<span>Search for Organ Recipient</span><br />";
 
