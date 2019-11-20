@@ -47,7 +47,7 @@ foreach($lookupFields as $thisField) {
 				break;
 		}
 
-		echo "<select name='$thisField' class='searchField'><option value=''></option>";
+		echo "<select name='".$thisField."[]' class='searchField'><option value=''></option>";
 
 		foreach($options as $value => $label) {
 			echo "<option value='$value'>$label</option>";
@@ -58,7 +58,8 @@ foreach($lookupFields as $thisField) {
 	else {
 	    echo "<input type='text' class='searchField' name='$thisField' />";
     }
-	
+
+	echo "<button onclick='$(this).parent().parent().after($(this).parent().parent().clone());return false;'>+</button>";
 	echo "</div></div>";
 }
 

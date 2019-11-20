@@ -24,7 +24,7 @@ foreach($searchFields as $fieldKey => $thisField) {
 	}
 }
 
-$sql = "SELECT d.record,d.field_name,d.value
+$sql = "SELECT d.record,d.field_name,d.value,d.instance
 		FROM redcap_data d
 		WHERE d.field_name IN (";
 
@@ -62,25 +62,29 @@ $recordIds = [];
 foreach($recordData as $recordId => $recordDetails) {
 	$recordMatches = true;
 
+	## Sometimes lots of options show up for a given antibody, so repeating instead of single
+
 	## Loop through this record's searchable fields and compare to the form data submitted
 	foreach($searchData as $fieldKey => $searchValue) {
-		if($searchValue == "") continue;
+		foreach($searchValue as $actualValue) {
+			if($actualValue == "") continue;
 
-		$lookupField = $lookupFields[$fieldKey];
-		$logicType = $logicTypes[$fieldKey];
+			$lookupField = $lookupFields[$fieldKey];
+			$logicType = $logicTypes[$fieldKey];
 
-		if($lookupField == "") continue;
+			if($lookupField == "") continue;
 
-		if(is_array($recordDetails[$lookupField])) {
-			$fieldMatches = in_array($searchValue,$recordDetails[$lookupField]);
-		}
-		else {
-			$fieldMatches = ($searchValue == $recordDetails[$lookupField]);
-		}
+			if(is_array($recordDetails[$lookupField])) {
+				$fieldMatches = in_array($actualValue,$recordDetails[$lookupField]);
+			}
+			else {
+				$fieldMatches = ($actualValue == $recordDetails[$lookupField]);
+			}
 
-		if(($logicType == "not" && $fieldMatches) || ($logicType == "equals" && !$fieldMatches)) {
-			$recordMatches = false;
-			break;
+			if(($logicType == "not" && $fieldMatches) || ($logicType == "equals" && !$fieldMatches)) {
+				$recordMatches = false;
+				break;
+			}
 		}
 	}
 
@@ -89,6 +93,7 @@ foreach($recordData as $recordId => $recordDetails) {
 	}
 }
 
+$repeatingFields = [];
 
 foreach($recordIds as $recordId) {
 	$displayString = "";
@@ -96,8 +101,29 @@ foreach($recordIds as $recordId) {
 
 	$displayData = [];
 	foreach($recordDetails as $recordId => $eventDetails) {
+		if(array_key_exists("repeat_instances",$eventDetails)) {
+			foreach($eventDetails["repeat_instances"] as $eventId => $details) {
+				foreach($details as $formName => $instances) {
+					foreach($instances as $instanceId => $fieldDetails) {
+						foreach($displayFields as $thisField) {
+							## This is a repeating field
+							if(!empty($fieldDetails[$thisField])) {
+								if(!array_key_exists($thisField,$displayData)) {
+									$repeatingFields[$thisField] = 1;
+									$displayData[$thisField] = [];
+								}
+								$displayData[$thisField][$instanceId] = $fieldDetails[$thisField];
+							}
+						}
+					}
+				}
+			}
+		}
 		foreach($eventDetails as $eventId => $details) {
 			foreach($displayFields as $thisField) {
+				if(array_key_exists($thisField,$displayData)) {
+					continue;
+				}
 				if($details[$thisField] != "") {
 					$displayData[$thisField] = $details[$thisField];
 				}
@@ -109,6 +135,10 @@ foreach($recordIds as $recordId) {
 
 	foreach($displayFields as $thisField) {
 		if($thisField == "") continue;
+
+		if($repeatingFields[$thisField] == 1) {
+			$displayData[$thisField] = end($displayData[$thisField]);
+		}
 
 		if($metadata[$thisField]["field_type"] == "checkbox") {
 			$displayString = "";
