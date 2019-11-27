@@ -169,17 +169,17 @@ foreach($recordIds as $recordId) {
 		}
 
 		if($metadata[$thisField]["field_type"] == "checkbox") {
-			$displayString = "";
+			$tempString = "";
 
 			$options = $module->getChoiceLabels($thisField);
 
 			foreach($options as $value => $label) {
 				if(in_array($value,$displayData[$thisField])) {
-					$displayString .= ($displayString != "" ? ", " : "").$label;
+					$tempString .= ($tempString != "" ? ", " : "").$label;
 				}
 			}
 
-			$displayData[$thisField] = $displayString;
+			$displayData[$thisField] = $tempString;
 		}
 		else if(in_array($metadata[$thisField]["field_type"],["radio","dropdown","yesno","truefalse","sql"])) {
 			switch($metadata[$thisField]["field_type"]) {
