@@ -21,11 +21,12 @@ echo "<link rel=\"stylesheet\" href=\"".$module->getUrl(__DIR__."/css/style.css"
 echo "<span>Search for Organ Recipient</span><br />";
 
 $lookupFields = $module->getProjectSetting("search-fields");
+$repeatingFields = $module->getProjectSetting("repeating-field");
 $metadata = $module->getMetadata($project);
 
 echo "<form id='searchForm'>";
 
-foreach($lookupFields as $thisField) {
+foreach($lookupFields as $fieldKey => $thisField) {
 	echo "<div class='configDiv row'>";
 	echo "<div class='col-md-4'><h4>".$metadata[$thisField]["field_label"]."</h4></div>";
 	echo "<div class='col-md-8'>";
@@ -66,7 +67,9 @@ foreach($lookupFields as $thisField) {
 	    echo "<input type='text' class='searchField' name='$thisField' />";
     }
 
-	echo "<button onclick='$(this).parent().parent().after($(this).parent().parent().clone());return false;'>+</button>";
+	if($repeatingFields[$fieldKey]) {
+		echo "<button onclick='$(this).parent().parent().after($(this).parent().parent().clone());return false;'>+</button>";
+	}
 	echo "</div></div>";
 }
 

@@ -85,6 +85,12 @@ foreach($recordData as $recordId => $recordDetails) {
 
 			if($lookupField == "") continue;
 
+			## All search fields need to have a value for the record or else skip
+			if(!array_key_exists($lookupField,$recordDetails)) {
+				$recordMatches = false;
+				break;
+			}
+
 			if(is_array($recordDetails[$lookupField])) {
 				$fieldMatches = in_array($actualValue,$recordDetails[$lookupField]);
 			}
@@ -202,9 +208,9 @@ foreach($recordIds as $recordId) {
 
 		$displayString .= $metadata[$thisField]["field_label"]." : ".$displayData[$thisField]."<br />";
 	}
-
+	global $redcap_version;
 	## Add button to edit record to results
-	$displayString .= "<button onclick='window.location.href=\"".rtrim(APP_PATH_WEBROOT_FULL,"/").APP_PATH_WEBROOT."DataEntry/record_home.php?pid=".$project."&id=".$recordId."\";return false;'>Go to Record</button><Br />";
+	$displayString .= "<button onclick='window.location.href=\"".rtrim(APP_PATH_WEBROOT_FULL,"/")."/redcap_v".$redcap_version."/DataEntry/record_home.php?pid=".$project."&id=".$recordId."\";return false;'>Go to Record</button><Br />";
 
 	echo "<div style='border:solid black 1px; width:200px' >$displayString</div>";
 }

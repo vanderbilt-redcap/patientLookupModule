@@ -69,7 +69,12 @@
 							"value": "equals"
 						}
 					]
-				}
+				},
+                {
+                  "key":"repeating-field",
+                  "type":"checkbox",
+                  "name": "Allow more than one search value for this field?"
+                }
 			]
 		},
 		{
