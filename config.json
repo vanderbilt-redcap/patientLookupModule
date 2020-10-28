@@ -1,9 +1,9 @@
 {
-	"name": "PatientLookupModule",
+	"name": "OrganRegistryModule",
 
-	"namespace": "RedcapAfrica\\PatientLookupModule",
+	"namespace": "RedcapAfrica\\OrganRegistryModule",
 
-	"description": "Replaces add/edit records with a patient lookup page which only allows you to create a record if the patient doesn&#039;t exist",
+	"description": "Creates a page to look up patients that match with a donated organ",
 
 	"documentation": "README.md",
 
@@ -16,7 +16,6 @@
 	],
 
 	"permissions": [
-		"redcap_every_page_top"
 	],
 	
 	"enable-every-page-hooks-on-system-pages": false,	
@@ -24,6 +23,11 @@
 	"links": {
 		"project": [
 
+			{
+				"name": "Organ Matching",
+				"icon": "magnifier",
+				"url": "patientLookup.php"
+			}
 		],
 		"control-center": [
 
@@ -36,12 +40,43 @@
 
 	"project-settings": [
 		{
-			"key":"matching-fields",
-			"type":"field-list",
-			"name": "Fields to match patient identity",
-			"repeatable":true
+			"key":"patient-matching-fields",
+			"type":"sub_settings",
+			"name": "Fields to find recipients",
+			"repeatable": true,
+			"sub_settings": [
+				{
+					"key":"search-fields",
+					"type":"field-list",
+					"name": "Fields to display on search form"
+				},
+				{
+					"key":"matching-fields",
+					"type":"field-list",
+					"name": "Matching field to match patient identity"
+				},
+				{
+					"key":"matching-logic",
+					"type":"dropdown",
+					"name": "Matching logic",
+					"choices": [
+						{
+							"name": "NOT EQUALS",
+							"value": "not"
+						},
+						{
+							"name": "EQUALS",
+							"value": "equals"
+						}
+					]
+				},
+                {
+                  "key":"repeating-field",
+                  "type":"checkbox",
+                  "name": "Allow more than one search value for this field?"
+                }
+			]
 		},
-
 		{
 			"key":"display-fields",
 			"type":"field-list",
