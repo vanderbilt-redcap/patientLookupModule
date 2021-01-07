@@ -1,9 +1,7 @@
 <?php
-$project = $_GET['pid'];
 
-if($project == "") {
-	throw new Exception("No project selected");
-}
+require_once('base.php');
+
 
 /* @var $module RedcapAfrica\OrganRegistryModule\OrganRegistryModule */
 $searchFields = $module->getProjectSetting("search-fields");
@@ -18,12 +16,20 @@ if(count($lookupFields) == 0 || count($searchFields) == 0) die();
 $searchData = [];
 foreach($searchFields as $fieldKey => $thisField) {
 	if($thisField == "") continue;
-
+	
 	if((is_array($_POST[$thisField]) && count($thisField) > 0) || (!is_array($_POST[$thisField] && $_POST[$thisField] != ""))) {
 		$searchData[$fieldKey] = $_POST[$thisField];
 	}
 }
+$user = $_SESSION['username'];
+$logParams = [
+    'searchParams' => json_encode(array_combine($searchFields, $searchData)),
+    'user' => $user
+];
 
+$module->log('searchHistory',$logParams);
+
+$vars['historyEntry'] = $logParams;
 if($_SESSION['debug_logging'] == "on") {
 	echo "Search Data:<br />";
 	echo "<pre>";var_dump($searchData);echo "</pre>";
@@ -113,6 +119,8 @@ foreach($recordData as $recordId => $recordDetails) {
 $repeatingFields = [];
 $recordCount = 0;
 
+$recordOutputs = [];
+$headerFields = [];
 foreach($recordIds as $recordId) {
 	$recordCount++;
 	## Don't display more than 10 records
@@ -205,16 +213,22 @@ foreach($recordIds as $recordId) {
 				}
 			}
 		}
-
-		$displayString .= $metadata[$thisField]["field_label"]." : ".$displayData[$thisField]."<br />";
+		if (!array_key_exists($thisField, $headerFields)) {
+            $headerFields[$thisField] = $metadata[$thisField]["field_label"];
+        }
+        $recordOutputs[$recordId]['fields'][$thisField] = $displayData[$thisField];
+//		$displayString .= $metadata[$thisField]["field_label"]." : ".$displayData[$thisField]."<br />";
 	}
 	global $redcap_version;
 	## Add button to edit record to results
-	$displayString .= "<button onclick='window.location.href=\"".rtrim(APP_PATH_WEBROOT_FULL,"/")."/redcap_v".$redcap_version."/DataEntry/record_home.php?pid=".$project."&id=".$recordId."\";return false;'>Go to Record</button><Br />";
-
-	echo "<div style='border:solid black 1px; width:200px' >$displayString</div>";
+    $recordOutputs[$recordId]['url'] = rtrim(APP_PATH_WEBROOT_FULL,"/")."/redcap_v".$redcap_version."/DataEntry/record_home.php?pid=".$project."&id=".$recordId;
 }
 
 if(count($recordIds) == 0 ) {
 	echo "No matching records found";
+	die();
 }
+$vars['records'] = $recordOutputs;
+$vars['headers'] = $headerFields;
+
+echo $twig->render('patientSearch.twig', $vars);

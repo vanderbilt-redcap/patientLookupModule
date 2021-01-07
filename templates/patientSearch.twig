@@ -1,0 +1,48 @@
+<div id="exportCSV" ></div>
+<table id="patientResults">
+    <thead>
+    <tr>
+        <th>Link</th>
+        {% for field in headers %}
+        <th>{{ field }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for details in records %}
+    <tr>
+        <td><button onclick='window.location.href="{{ details.url|raw }}";return false;'>Go to Record</button><br /></td>
+        {% for field in details.fields %}
+            <td>
+                {{ field }}
+            </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<script>
+    $(document).ready(function (){
+        let table = $('#patientResults').DataTable({
+            dom: "<'left'f>t", //Make search box (f) right aligned
+            columnDefs: [
+                {
+                    targets: 0,
+                    orderable: false,
+                    searchable: false
+                }
+            ],
+            buttons: [
+                {
+                    extend: 'csv',
+                    text: 'Export to CSV',
+                    filename: 'OrganRecipientMatchingResults_{{ "now"|date("Ymd") }}',
+                    exportOptions: {
+                        columns: 'th:not(:first-child)'
+                    }
+                },
+            ]
+        });
+        $('#exportCSV').html(table.buttons().container());
+    });
+</script>

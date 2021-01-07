@@ -1,0 +1,102 @@
+
+{% for style in styles %}
+<link rel="stylesheet" href="{{ style|raw }}" />
+{% endfor %}
+{% for script in scripts %}
+    <script type="text/javascript" src="{{ script|raw }}"></script>
+{% endfor %}
+
+<span>Search for Organ Recipient</span><br />
+<form id='searchForm'>
+    <div class="configDiv row">
+        <div class="col-md-6">
+        {% for field, details in lookupDetails %}
+            <div class='configDiv row'>
+                <div class='col-md-7'>
+                    <h4>{{ details.label }}</h4>
+                </div>
+                <div class='col-md-5'>
+                    {% if details.type == 'checkbox' %}
+                        {% for value, label in details.options %}
+                            <span>{{ label }}</span> <input type='checkbox' class='searchField' value='{{ value }}' name='{{ field }}-{{ value }}' /><br />
+                        {% endfor %}
+
+                    {% elseif details.type == 'select' %}
+                    <select name="{{ field }}[]" class='searchField'>
+                        <option value=''></option>
+                        {% for value, label in details.options %}
+                            <option value='{{ value }}'>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% elseif details.type == 'test'%}
+                        <input type='text' class='searchField' name='{{ field }}' />
+                    {% endif %}
+                    {% if details.repeating %}
+                    <button onclick='$(this).parent().parent().after($(this).parent().parent().clone());return false;'>+</button>
+                    {% endif %}
+                </div>
+                {% if loop.index == 1 %}
+
+                {% endif %}
+            </div>
+        {% endfor %}
+        </div>
+        <div class='col-md-6'>
+            <label><h4>Search History</h4>
+                <br/>
+                <select id="searchHistory">
+                    <option></option>
+                    {% for timestamp, entry in historyEntries %}
+                        <option value="{{ entry.value }}">{{ entry.label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+    </div>
+    <input type='button' onclick='lookupPatient();' value='Submit' /><br /><br />
+</form>
+<div id='patient_results'>
+</div>
+
+<script type='text/javascript'>
+    $(document).ready(function () {
+        $('#searchHistory').change(function () {
+            // console.log();
+            var query = $(this).val();
+            // console.log(query);
+            // for (var key in query) {
+            //     if (!query.hasOwnProperty(key)) continue;
+            //     if ( query[key] instanceof Array) {
+            //         for (var index = 0; index < query[key].length; ++index) {
+            //             $('[name="'+key+'[]"][value="'+query[key][index]+'"]').prop('checked', true);
+            //         }
+            //     } else if($('[name="'+key+'"]').is('select')) {
+            //         $('[name="'+key+'"]').find('option[value="'+query[key]+'"]').prop('selected', true);
+            //     }
+            // }
+        });
+    });
+    function lookupPatient() {
+        $("#patient_results").html("<img src='{{ constant('APP_PATH_IMAGES') }}progress.gif' />");
+
+        var searchData = {};
+
+        $('.searchField').each(function() {
+            // console.log($(this).attr('name'));
+            // if ($(this).attr('name'))
+            // if ($(this).attr('type') == 'checkbox') {
+            //
+            // }
+            searchData[$(this).attr('name')] = (($(this).attr('type') != 'checkbox' || $(this).prop('checked')) ? $(this).val() : "");
+        });
+
+        $.ajax({
+            type:"POST",
+            url: "{{ patientSearchLink|raw }}",
+            data: searchData
+        }).done(function(html) {
+            $('#patient_results').html(html);
+        });
+
+    }
+</script>
