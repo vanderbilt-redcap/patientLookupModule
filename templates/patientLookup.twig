@@ -42,15 +42,15 @@
         {% endfor %}
         </div>
         <div class='col-md-6'>
-            <label><h4>Search History</h4>
-                <br/>
-                <select id="searchHistory">
-                    <option></option>
-                    {% for timestamp, entry in historyEntries %}
-                        <option value="{{ entry.value }}">{{ entry.label }}</option>
-                    {% endfor %}
-                </select>
-            </label>
+{#            <label><h4>Search History</h4>#}
+{#                <br/>#}
+{#                <select id="searchHistory">#}
+{#                    <option></option>#}
+{#                    {% for timestamp, entry in historyEntries %}#}
+{#                        <option value="{{ entry.value }}">{{ entry.label }}</option>#}
+{#                    {% endfor %}#}
+{#                </select>#}
+{#            </label>#}
         </div>
     </div>
     <input type='button' onclick='lookupPatient();' value='Submit' /><br /><br />
