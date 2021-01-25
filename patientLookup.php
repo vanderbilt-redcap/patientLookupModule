@@ -57,21 +57,9 @@ foreach($lookupFields as $fieldKey => $thisField) {
     }
 }
 
-/** @var mysqli_result $result */
-$result = $module->queryLogs("select user, timestamp, searchParams
-                                 where message = 'searchHistory'
-                                 and user = ?",
-    $_SESSION['username']);
 
-$historyEntries = [];
-while ($row = $result->fetch_assoc()) {
-    $timestamp = strtotime($row['timestamp']);
-    $historyEntries[$timestamp]['label'] = $row['timestamp'];
-    $historyEntries[$timestamp]['value'] = $row['searchParams'];
-}
-krsort($historyEntries);
-$vars['historyEntries'] = $historyEntries;
 $vars['lookupDetails'] = $lookupDetails;
+$vars['searchHistoryLink'] = $module->getUrl("searchHistoryLookup.php");
 $vars['patientSearchLink'] = $module->getUrl("patientSearchAjax.php");
 echo $twig->render('patientLookup.twig', $vars);
 

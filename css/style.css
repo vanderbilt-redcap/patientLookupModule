@@ -8,3 +8,6 @@ div.configDiv {
 .left {
     float: left;
 }
+#searchHistory td{
+    text-align: center;
+}

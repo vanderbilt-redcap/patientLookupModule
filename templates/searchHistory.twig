@@ -1,0 +1,124 @@
+<table id="searchHistory" class="display compact">
+    <thead>
+    <tr>
+        <th></th>
+        <th></th>
+        {% for header in searchHeaders %}
+            <th>{{ header }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for id, search in historyEntries %}
+        <tr>
+            <td><button id="searchResult_{{ id }}" type="button">View Results</button></td>
+            <td>
+                <input type="hidden" value="{{ search.paramsEncoded }}" name="hiddenSearchParams">
+                <button id="rerunSearch_{{ id }}" type="button">Re-run Query</button>
+            </td>
+            <td>{{ search.timestamp }}</td>
+            <td>{{ search.user }}</td>
+            <td>{{ search.resultCount }}</td>
+            {% for value in search.params %}
+                {% if value is iterable%}
+                    <td>
+                        {% for item in value %}
+                            {% if item is not empty %}
+                                {{ item }}{% if loop.index < value|length %},{% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                {% else %}
+                    <td>{{ value }}</td>
+                {% endif %}
+            {% endfor %}
+            {% set extraCells = ((searchHeaders|length - 3) - search.params|length) %}
+            {% if extraCells > 0 %}
+                {% for i in range(1,extraCells) %}
+                    <td></td>
+                {% endfor %}
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function (){
+        var searchTable = $('#searchHistory').DataTable({
+            "paging":   false,
+            "scrollY":  "400px",
+            "scrollCollapse": true,
+            "order": [[ 1, "desc" ]]
+        });
+        $('button[id^="searchResult_"]').click(function (e) {
+            $('#searchHistory').find('tr').prop('style', '');
+            var id =$(this).prop('id').split('_')[1];
+            $(this).closest('tr').prop('style', 'outline: 1px solid red');
+            $.ajax({
+                type:"POST",
+                url: "{{ searchHistoryLookupLink|raw }}",
+                data: {log_id: id}
+            }).done(function(html) {
+                $('#patient_results').html('<h4 class="error">Viewing Historical Data. May no longer be accurate</h4>');
+                $('#patient_results').append(html);
+            });
+        });
+        $('button[id^="rerunSearch_"]').click(function (e) {
+            var id =$(this).prop('id').split('_')[1];
+            var searchData = $(this).closest('td').find('input[name="hiddenSearchParams"]').val();
+            searchData = JSON.parse(searchData);
+            // Object.keys(searchData).forEach(function(k){
+            //     console.log(k);
+            //     console.log(searchData[k]);
+            //     if ($('[name^="'+k+'"]').length > 0) {
+            //         var option = $('[name^="'+k+'"]');
+            //         var elementType = option.prop('nodeName');
+            //         var iterations = 0;
+            //         //TODO reduce down to one
+            //         while (option.length > 1) {
+            //             option.last().closest('div.configDiv').remove();
+            //             option = $('[name^="'+k+'"]');
+            //         }
+            //         var valueCount = 1;
+            //         searchData[k].forEach(function (value) {
+            //             console.log(valueCount);
+            //             console.log(option.length);
+            //             if (valueCount > option.length) {
+            //                 cloneOption(option.last());
+            //             }
+            //             option = $('[name^="'+k+'"]');
+            //             option.last().val(value);
+            //             valueCount++;
+            //         });
+            //         //set up all the repeating options
+            //         // while (searchData[k].length != option.length && iterations < 100) {
+            //         //     console.log(searchData[k].length);
+            //         //     console.log(option.length);
+            //         //     if (searchData[k].length > option.length) {
+            //         //         console.log('data is longer');
+            //         //         cloneOption(option.last());
+            //         //     } else if (searchData[k].length < option.length) {
+            //         //         console.log('select count is longer');
+            //         //         option.last().closest('div.configDiv').remove();
+            //         //     } else {
+            //         //         console.log('They match!');
+            //         //     }
+            //         //     option = $('[name^="'+k+'"]');
+            //         //     iterations++;
+            //         // }
+            //
+            //     }
+            // });
+
+            $.ajax({
+                type:"POST",
+                url: "{{ patientSearchLink|raw }}",
+                data: searchData
+            }).done(function(html) {
+                $('#patient_results').html(html);
+                refreshSearchHistory();
+            });
+        });
+    });
+</script>

@@ -10,9 +10,7 @@ $logicTypes = $module->getProjectSetting("matching-logic");
 $displayFields = $module->getProjectSetting("display-fields");
 
 if(count($lookupFields) == 0 || count($searchFields) == 0) die();
-
 ## Get submitted form data
-
 $searchData = [];
 foreach($searchFields as $fieldKey => $thisField) {
 	if($thisField == "") continue;
@@ -22,14 +20,12 @@ foreach($searchFields as $fieldKey => $thisField) {
 	}
 }
 $user = $_SESSION['username'];
+$savedQueryParams = array_combine($searchFields, $searchData);
 $logParams = [
+    'user' => $user,
     'searchParams' => json_encode(array_combine($searchFields, $searchData)),
-    'user' => $user
 ];
 
-$module->log('searchHistory',$logParams);
-
-$vars['historyEntry'] = $logParams;
 if($_SESSION['debug_logging'] == "on") {
 	echo "Search Data:<br />";
 	echo "<pre>";var_dump($searchData);echo "</pre>";
@@ -221,9 +217,13 @@ foreach($recordIds as $recordId) {
 	}
 	global $redcap_version;
 	## Add button to edit record to results
-    $recordOutputs[$recordId]['url'] = rtrim(APP_PATH_WEBROOT_FULL,"/")."/redcap_v".$redcap_version."/DataEntry/record_home.php?pid=".$project."&id=".$recordId;
+    $recordOutputs[$recordId]['url'] = $module->getRecordSurveyURL($recordId);
 }
 
+$logParams['searchResults'] = json_encode(array_combine($recordIds, array_column($recordOutputs, 'fields')));
+$logParams['resultCount'] = count($recordIds);
+//$module->removeLogs("message = 'searchHistory'");
+$module->log('searchHistory',$logParams);
 if(count($recordIds) == 0 ) {
 	echo "No matching records found";
 	die();
