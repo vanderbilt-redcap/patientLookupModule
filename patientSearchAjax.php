@@ -222,7 +222,7 @@ foreach($recordIds as $recordId) {
 
 $logParams['searchResults'] = json_encode(array_combine($recordIds, array_column($recordOutputs, 'fields')));
 $logParams['resultCount'] = count($recordIds);
-//$module->removeLogs("message = 'searchHistory'");
+$module->removeLogs("message = 'searchHistory'");
 $module->log('searchHistory',$logParams);
 if(count($recordIds) == 0 ) {
 	echo "No matching records found";
