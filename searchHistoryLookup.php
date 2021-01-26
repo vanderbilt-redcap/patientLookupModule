@@ -42,6 +42,7 @@ if (array_key_exists('log_id', $_POST)) {
     
     $historyEntries = [];
     $searchHeaders = ['Timestamp', 'User', 'Number of Results'];
+    $initialHeaderCount = count($searchHeaders);
     while ($row = $result->fetch_assoc()) {
         $historyEntries[$row['log_id']]['timestamp'] = $row['timestamp'];
         $historyEntries[$row['log_id']]['user'] = $row['user'];
@@ -60,7 +61,7 @@ if (array_key_exists('log_id', $_POST)) {
                 }
             }
         }
-        if (count($historyEntries[$row['log_id']]['params']) > count($searchHeaders)) {
+        if ((count($historyEntries[$row['log_id']]['params']) + $initialHeaderCount) > count($searchHeaders)) {
             foreach ($historyEntries[$row['log_id']]['params'] as $field => $value) {
                 $searchHeaders[] = $metadata[$field]["field_label"];
             }
