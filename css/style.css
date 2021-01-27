@@ -8,6 +8,17 @@ div.configDiv {
 .left {
     float: left;
 }
+
 #searchHistory td{
     text-align: center;
 }
+
+#searchHistory button {
+    min-width: 55px
+}
+
+/*#searchHistory tbody td:nth-child(1) {*/
+/*    width: 150px;*/
+/*    max-width: 150px;*/
+/*    min-width: 150px;*/
+/*}*/

@@ -11,7 +11,9 @@
     <tbody>
     {% for id, search in historyEntries %}
         <tr>
-            <td><button id="searchResult_{{ id }}" type="button">View Results</button></td>
+            <td>
+                <button id="searchResult_{{ id }}" type="button">View Results</button>
+            </td>
             <td>
                 <input type="hidden" value="{{ search.paramsEncoded }}" name="hiddenSearchParams">
                 <button id="rerunSearch_{{ id }}" type="button">Re-run Query</button>
@@ -48,8 +50,12 @@
         var searchTable = $('#searchHistory').DataTable({
             "paging":   false,
             "scrollY":  "400px",
+            "scrollX": true,
             "scrollCollapse": true,
-            "order": [[ 1, "desc" ]]
+            "order": [[ 1, "desc" ]],
+            "fixedColumns": {
+                leftColumns: 2
+            }
         });
         $('button[id^="searchResult_"]').click(function (e) {
             $('#searchHistory').find('tr').prop('style', '');
