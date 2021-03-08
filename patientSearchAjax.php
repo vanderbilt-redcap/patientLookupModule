@@ -38,7 +38,7 @@ $sql = "SELECT d.record,d.field_name,d.value,d.instance
 foreach($lookupFields as $fieldKey => $fieldName) {
 	if($fieldName == "") continue;
 
-	$sql .= ($fieldKey == 0 ? "" : ", ")."'".$fieldName."'";
+	$sql .= ($fieldKey == 0 ? "" : ", ")."'".db_escape($fieldName)."'";
 }
 
 $sql .= ") AND d.project_id = '".db_escape($project)."'";
@@ -50,8 +50,16 @@ if($e = db_error()) {
 	die();
 }
 
+$moduleProject = $module->framework->getProject();
+
+$checkboxFields = [];
 $recordData = [];
 while($row = db_fetch_assoc($q)) {
+	$isCheckbox = $moduleProject->getField($row["field_name"])->getType() == "checkbox";
+	if($isCheckbox) {
+		$checkboxFields[$row["field_name"]] = 1;
+	}
+	
 	if(array_key_exists($row["field_name"],$recordData[$row["record"]])) {
 		if(!is_array($recordData[$row["record"]][$row["field_name"]])) {
 			$recordData[$row["record"]][$row["field_name"]] = [$recordData[$row["record"]][$row["field_name"]]];
@@ -59,11 +67,19 @@ while($row = db_fetch_assoc($q)) {
 		$recordData[$row["record"]][$row["field_name"]][] = $row["value"];
 	}
 	else {
-		$recordData[$row["record"]][$row["field_name"]] = $row["value"];
+		if($isCheckbox) {
+			$recordData[$row["record"]][$row["field_name"]] = [$row["value"]];
+		}
+		else {
+			$recordData[$row["record"]][$row["field_name"]] = $row["value"];
+		}
 	}
 }
 
 if($_SESSION['debug_logging'] == "on") {
+	echo "<br /><pre>";
+	var_dump($checkboxFields);
+	echo "</pre><br />";
 	echo "Lookup Field Data:<br />";
 	echo "<pre>";var_dump($recordData);echo "</pre>";
 }
@@ -71,6 +87,8 @@ if($_SESSION['debug_logging'] == "on") {
 
 ## Now need to do the matching here
 $recordIds = [];
+$skippedFields = [];
+$skippedRecordMessages = [];
 
 foreach($recordData as $recordId => $recordDetails) {
 	$recordMatches = true;
@@ -80,7 +98,10 @@ foreach($recordData as $recordId => $recordDetails) {
 	## Loop through this record's searchable fields and compare to the form data submitted
 	foreach($searchData as $fieldKey => $searchValue) {
 		foreach($searchValue as $actualValue) {
-			if($actualValue == "") continue;
+			if($actualValue == "") {
+				$skippedFields[$lookupFields[$fieldKey]] = 1;
+				continue;
+			}
 
 			$lookupField = $lookupFields[$fieldKey];
 			$logicType = $logicTypes[$fieldKey];
@@ -90,6 +111,7 @@ foreach($recordData as $recordId => $recordDetails) {
 			## All search fields need to have a value for the record or else skip
 			if(!array_key_exists($lookupField,$recordDetails)) {
 				$recordMatches = false;
+				$skippedRecordMessages[] = "Skipping record $recordId as has blank values for $lookupField<br />";
 				break;
 			}
 
@@ -101,6 +123,7 @@ foreach($recordData as $recordId => $recordDetails) {
 			}
 
 			if(($logicType == "not" && $fieldMatches) || ($logicType == "equals" && !$fieldMatches)) {
+				$skippedRecordMessages[] = "Excluding record $recordId because $lookupField has $logicType $actualValue - ".var_export($recordDetails[$lookupField],true)."<br />";
 				$recordMatches = false;
 				break;
 			}
@@ -112,6 +135,9 @@ foreach($recordData as $recordId => $recordDetails) {
 	}
 }
 
+## Log the records that were skipped and why
+$module->log("Ran Query",["skipped-messages" => implode("\n",$skippedRecordMessages)]);
+
 $repeatingFields = [];
 $recordCount = 0;
 
@@ -119,10 +145,7 @@ $recordOutputs = [];
 $headerFields = [];
 foreach($recordIds as $recordId) {
 	$recordCount++;
-	## Don't display more than 10 records
-	if($recordCount > 10) {
-		break;
-	}
+	
 	$displayString = "";
 	$recordDetails = $module->getData($project,$recordId);
 

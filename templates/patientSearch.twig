@@ -24,7 +24,7 @@
 <script>
     $(document).ready(function (){
         var table = $('#patientResults').DataTable({
-            dom: "<'left'f>t", //Make search box (f) right aligned
+            dom: "<'left'f>lrtip", //Make search box (f) right aligned
             columnDefs: [
                 {
                     targets: 0,
@@ -32,6 +32,7 @@
                     searchable: false
                 }
             ],
+            pageLength: 10,
             buttons: [
                 {
                     extend: 'csv',
