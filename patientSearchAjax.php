@@ -80,8 +80,6 @@ if($_SESSION['debug_logging'] == "on") {
 	echo "<br /><pre>";
 	var_dump($checkboxFields);
 	echo "</pre><br />";
-	echo "Lookup Field Data:<br />";
-	echo "<pre>";var_dump($recordData);echo "</pre>";
 }
 
 
@@ -97,6 +95,11 @@ foreach($recordData as $recordId => $recordDetails) {
 
 	## Loop through this record's searchable fields and compare to the form data submitted
 	foreach($searchData as $fieldKey => $searchValue) {
+		## Support non-array search fields
+		if(!is_array($searchValue)) {
+			$searchValue = [$searchValue];
+		}
+		
 		foreach($searchValue as $actualValue) {
 			if($actualValue == "") {
 				$skippedFields[$lookupFields[$fieldKey]] = 1;
@@ -119,9 +122,9 @@ foreach($recordData as $recordId => $recordDetails) {
 				$fieldMatches = in_array($actualValue,$recordDetails[$lookupField]);
 			}
 			else {
-				$fieldMatches = ($actualValue == $recordDetails[$lookupField]);
+				$fieldMatches = ($actualValue === $recordDetails[$lookupField]);
 			}
-
+			
 			if(($logicType == "not" && $fieldMatches) || ($logicType == "equals" && !$fieldMatches)) {
 				$skippedRecordMessages[] = "Excluding record $recordId because $lookupField has $logicType $actualValue - ".var_export($recordDetails[$lookupField],true)."<br />";
 				$recordMatches = false;
@@ -151,7 +154,7 @@ foreach($recordIds as $recordId) {
 
 	if($_SESSION['debug_logging'] == "on" && $recordCount == 1) {
 		echo "Get Data Results:<br />";
-		echo "<pre>";var_dump($recordDetails);echo "</pre>";
+//		echo "<pre>";var_dump($recordDetails);echo "</pre>";
 	}
 
 	$displayData = [];
