@@ -151,7 +151,13 @@ foreach($recordIds as $recordId) {
 	
 	$displayString = "";
 	$recordDetails = $module->getData($project,$recordId);
-
+    
+    $tempDetails = $recordDetails[$recordId];
+    unset($tempDetails['repeat_instances']);
+    $tempDetails = reset($tempDetails);
+    if ($tempDetails['rec_listing_status'] == 7) {
+        continue;
+    }
 	if($_SESSION['debug_logging'] == "on" && $recordCount == 1) {
 		echo "Get Data Results:<br />";
 //		echo "<pre>";var_dump($recordDetails);echo "</pre>";
