@@ -38,12 +38,15 @@ if (array_key_exists('log_id', $_POST)) {
     
     /** @var mysqli_result $result */
     $result = $module->queryLogs("select log_id, user, timestamp, resultCount, searchParams
-                                 where message = 'searchHistory'");
+                                 where message = 'searchHistory' order by timestamp desc");
     
     $historyEntries = [];
     $searchHeaders = ['Timestamp', 'User', 'Number of Results'];
     $initialHeaderCount = count($searchHeaders);
     while ($row = $result->fetch_assoc()) {
+        if (count($historyEntries) >= 25) {
+            break;
+        }
         $historyEntries[$row['log_id']]['timestamp'] = $row['timestamp'];
         $historyEntries[$row['log_id']]['user'] = $row['user'];
         $historyEntries[$row['log_id']]['resultCount'] = $row['resultCount'];
@@ -68,7 +71,6 @@ if (array_key_exists('log_id', $_POST)) {
         }
     }
     
-    krsort($historyEntries);
     $vars['historyEntries'] = $historyEntries;
     $vars['searchHeaders'] = $searchHeaders;
     $vars['searchHistoryLookupLink'] = $module->getUrl("searchHistoryLookup.php");
