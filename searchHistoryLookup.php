@@ -16,16 +16,11 @@ if (array_key_exists('log_id', $_POST)) {
     $recordOutputs = [];
     $headerFields  = [];
     $results       = json_decode($row['searchResults'], true);
-    foreach ($results as $recordId => $fields) {
-        $recordOutputs[$recordId]['fields'] = $fields;
-        $recordOutputs[$recordId]['url']    = $module->getRecordSurveyURL($recordId);
-        foreach ($fields as $field => $value) {
-            if (!array_key_exists($field, $headerFields)) {
-                $headerFields[$field] = trim($metadata[$field]["field_label"]);
-            }
-        }
+    foreach ($results as $recordId) {
+        $recordOutputs[$recordId] = $module->getDisplayDataforRecord($project, $recordId, false);
     }
-
+    $recordOutputs = array_filter($recordOutputs);
+    $headerFields = $module->getDisplayHeaders($project);
 //if(count($recordIds) == 0 ) {
 //    echo "No matching records found";
 //    die();

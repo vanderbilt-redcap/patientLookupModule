@@ -11,7 +11,7 @@
     <tbody>
     {% for details in records %}
     <tr>
-        <td><button onclick='window.location.href="{{ details.url|raw }}";return false;'>Go to Record</button><br /></td>
+        <td><button onclick='window.open("{{ details.url|raw }}");return false;'>Go to Record</button><br /></td>
         {% for field in details.fields %}
             <td>
                 {{ field }}

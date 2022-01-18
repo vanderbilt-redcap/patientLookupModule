@@ -60,7 +60,12 @@
         $('button[id^="searchResult_"]').click(function (e) {
             $('#searchHistory').find('tr').prop('style', '');
             var id =$(this).prop('id').split('_')[1];
+            let row = $(this).closest('tr');
+            let tbody = row.closest('tbody');
+            tbody.find('tr').prop('style', '');
             $(this).closest('tr').prop('style', 'outline: 1px solid red');
+            let index = row.index();
+            $('#searchHistory tbody').children().eq(index).prop('style', 'outline: 1px solid red');
             $.ajax({
                 type:"POST",
                 url: "{{ searchHistoryLookupLink|raw }}",

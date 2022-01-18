@@ -147,115 +147,17 @@ $recordCount = 0;
 $recordOutputs = [];
 $headerFields = [];
 foreach($recordIds as $recordId) {
-	$recordCount++;
-	
-	$displayString = "";
-	$recordDetails = $module->getData($project,$recordId);
-    
-    $tempDetails = $recordDetails[$recordId];
-    unset($tempDetails['repeat_instances']);
-    $tempDetails = reset($tempDetails);
-    if ($tempDetails['rec_listing_status'] == 7) {
-        continue;
-    }
-	if($_SESSION['debug_logging'] == "on" && $recordCount == 1) {
-		echo "Get Data Results:<br />";
-//		echo "<pre>";var_dump($recordDetails);echo "</pre>";
-	}
-
-	$displayData = [];
-	foreach($recordDetails as $recordId => $eventDetails) {
-		if(array_key_exists("repeat_instances",$eventDetails)) {
-			foreach($eventDetails["repeat_instances"] as $eventId => $details) {
-				foreach($details as $formName => $instances) {
-					foreach($instances as $instanceId => $fieldDetails) {
-						foreach($displayFields as $thisField) {
-							## This is a repeating field
-							if(!empty($fieldDetails[$thisField])) {
-								if(!array_key_exists($thisField,$displayData)) {
-									$repeatingFields[$thisField] = 1;
-									$displayData[$thisField] = [];
-								}
-								$displayData[$thisField][$instanceId] = $fieldDetails[$thisField];
-							}
-						}
-					}
-				}
-			}
-		}
-		foreach($eventDetails as $eventId => $details) {
-			foreach($displayFields as $thisField) {
-				if(array_key_exists($thisField,$displayData)) {
-					continue;
-				}
-				if($details[$thisField] != "") {
-					$displayData[$thisField] = $details[$thisField];
-				}
-			}
-		}
-	}
-
-	$metadata = $module->getMetadata($project);
-
-	foreach($displayFields as $thisField) {
-		if($thisField == "") continue;
-
-		if($repeatingFields[$thisField] == 1) {
-			$displayData[$thisField] = end($displayData[$thisField]);
-		}
-
-		if($metadata[$thisField]["field_type"] == "checkbox") {
-			$tempString = "";
-
-			$options = $module->getChoiceLabels($thisField);
-
-			foreach($options as $value => $label) {
-				if(in_array($value,$displayData[$thisField])) {
-					$tempString .= ($tempString != "" ? ", " : "").$label;
-				}
-			}
-
-			$displayData[$thisField] = $tempString;
-		}
-		else if(in_array($metadata[$thisField]["field_type"],["radio","dropdown","yesno","truefalse","sql"])) {
-			switch($metadata[$thisField]["field_type"]) {
-				case "radio":
-				case "dropdown":
-					$options = $module->getChoiceLabels($thisField);
-					break;
-				case "yesno":
-					$options = [1 => "yes", 0 => "no"];
-					break;
-				case "truefalse":
-					$options = [1 => "true", 0 => "false"];
-					break;
-				case "sql":
-					$options = [];
-					break;
-			}
-
-			foreach($options as $value => $label) {
-				if($value == $displayData[$thisField]) {
-					$displayData[$thisField] = $label;
-					break;
-				}
-			}
-		}
-		if (!array_key_exists($thisField, $headerFields)) {
-            $headerFields[$thisField] = $metadata[$thisField]["field_label"];
-        }
-        $recordOutputs[$recordId]['fields'][$thisField] = $displayData[$thisField];
-//		$displayString .= $metadata[$thisField]["field_label"]." : ".$displayData[$thisField]."<br />";
-	}
-	global $redcap_version;
-	## Add button to edit record to results
-    $recordOutputs[$recordId]['url'] = $module->getRecordSurveyURL($recordId);
+    $recordOutputs[$recordId] = $module->getDisplayDataforRecord($project, $recordId);
 }
 
-$logParams['searchResults'] = json_encode(array_combine($recordIds, array_column($recordOutputs, 'fields')));
-$logParams['resultCount'] = count($recordIds);
-//Debug to remove old search history
-//$module->removeLogs("message = 'searchHistory'");
+$headerFields = $module->getDisplayHeaders($project);
+
+//remove empty entries
+$recordOutputs = array_filter($recordOutputs);
+
+//$logParams['searchResults'] = json_encode(array_combine($recordIds, array_column($recordOutputs, 'fields')));
+$logParams['searchResults'] = json_encode(array_keys($recordOutputs));
+$logParams['resultCount'] = count($recordOutputs);
 $module->log('searchHistory',$logParams);
 if(count($recordIds) == 0 ) {
 	echo "No matching records found";

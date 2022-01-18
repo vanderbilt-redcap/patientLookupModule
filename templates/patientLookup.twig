@@ -58,6 +58,10 @@
 <script type='text/javascript'>
     $(document).ready(function () {
         refreshSearchHistory();
+        $('#searchForm').submit(function () {
+            lookupPatient();
+            return false;
+        });
     });
     function refreshSearchHistory() {
         $.ajax({
