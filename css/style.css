@@ -14,7 +14,7 @@ div.configDiv {
 }
 
 #searchHistory button {
-    min-width: 55px
+    min-width: 60px;
 }
 
 /*#searchHistory tbody td:nth-child(1) {*/
