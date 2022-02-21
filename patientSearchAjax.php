@@ -122,11 +122,19 @@ foreach($recordData as $recordId => $recordDetails) {
 
 			if(is_array($recordDetails[$lookupField])) {
 				$fieldMatches = in_array($actualValue,$recordDetails[$lookupField]);
+                $fieldMessage = '[' .implode("', '", $recordDetails[$lookupField]) . ']';
 			}
 			else {
 				$fieldMatches = ($actualValue === $recordDetails[$lookupField]);
+                $labels = $module->getChoiceLabels($lookupField);
+                if (!empty($labels)) {
+                    $actualValue = $labels[$actualValue];
+                    $fieldMessage = '[' . $labels[$recordDetails[$lookupField]] . ']';
+                } else {
+                    $fieldMessage = '['.$recordDetails[$lookupField].']';
+                }
 			}
-			
+
 			if(($logicType == "not" && $fieldMatches) || ($logicType == "equals" && !$fieldMatches)) {
 //                $skippedRecordMessages[] = "Excluding record $recordId because $lookupField has $logicType $actualValue - ".var_export($recordDetails[$lookupField],true)."<br />";
                 ## Log the records that were skipped and why
@@ -134,11 +142,11 @@ foreach($recordData as $recordId => $recordDetails) {
 //                foreach ($recordDetails[$lookupField] as $value) {
 //                    $fieldMessage .= $value . "\n";
 //                }
-                $fieldMessage = '[' .implode(", ", $recordDetails[$lookupField]) . ']';
+                
                 if ($logicType == 'not') {
-                    $skippedRecordMessages['skipped_record_'.$recordId] = "Excluding record $recordId because $actualValue was found in $lookupField - \n$fieldMessage";
+                    $skippedRecordMessages['skipped_record_'.$recordId] = "Excluding record $recordId because '$actualValue' was found in $lookupField - $fieldMessage";
                 } else if ($logicType == 'equals') {
-                    $skippedRecordMessages['skipped_record_'.$recordId] = "Excluding record $recordId because $actualValue was not found in $lookupField - \n$fieldMessage";
+                    $skippedRecordMessages['skipped_record_'.$recordId] = "Excluding record $recordId because '$actualValue' was not found in $lookupField - $fieldMessage";
                 }
                 
                 $recordMatches = false;
