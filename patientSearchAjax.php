@@ -115,10 +115,9 @@ foreach($recordData as $recordId => $recordDetails) {
 			## All search fields need to have a value for the record or else skip
 			if(!array_key_exists($lookupField,$recordDetails)) {
 				$recordMatches = false;
-//				$skippedRecordMessages[] = "Skipping record $recordId as has blank values for $lookupField<br />";
                 ## Log the records that were skipped and why
-                $module->log("Ran Query - Blank Values", ["skipped-message" => "Skipping record $recordId as has blank values for $lookupField"]);
-				break;
+                $skippedRecordMessages['skipped_record_'.$recordId] = "Skipping record $recordId as has blank values for $lookupField";
+                break;
 			}
 
 			if(is_array($recordDetails[$lookupField])) {
@@ -137,11 +136,11 @@ foreach($recordData as $recordId => $recordDetails) {
 //                }
                 $fieldMessage = '[' .implode(", ", $recordDetails[$lookupField]) . ']';
                 if ($logicType == 'not') {
-                    $skippedMessage = "Excluding record $recordId because $actualValue was found in $lookupField - \n$fieldMessage";
+                    $skippedRecordMessages['skipped_record_'.$recordId] = "Excluding record $recordId because $actualValue was found in $lookupField - \n$fieldMessage";
                 } else if ($logicType == 'equals') {
-                    $skippedMessage = "Excluding record $recordId because $actualValue was not found in $lookupField - \n$fieldMessage";
+                    $skippedRecordMessages['skipped_record_'.$recordId] = "Excluding record $recordId because $actualValue was not found in $lookupField - \n$fieldMessage";
                 }
-                $module->log("Ran Query - Logic mismatch", ["skipped-message" => "$skippedMessage"]);
+                
                 $recordMatches = false;
 				break;
 			}
@@ -152,8 +151,7 @@ foreach($recordData as $recordId => $recordDetails) {
 		$recordIds[] = $recordId;
 	}
 }
-
-
+$module->log("Ran Query", $skippedRecordMessages);
 
 $repeatingFields = [];
 $recordCount = 0;
