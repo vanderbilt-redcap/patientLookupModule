@@ -15,7 +15,7 @@ $searchData = [];
 foreach($searchFields as $fieldKey => $thisField) {
 	if($thisField == "") continue;
 	
-	if((is_array($_POST[$thisField]) && count($thisField) > 0) || (!is_array($_POST[$thisField] && $_POST[$thisField] != ""))) {
+	if((is_array($_POST[$thisField]) && strlen($thisField) > 0) || (!is_array($_POST[$thisField] && $_POST[$thisField] != ""))) {
 		$searchData[$fieldKey] = $_POST[$thisField];
 	}
 }
@@ -60,7 +60,7 @@ while($row = db_fetch_assoc($q)) {
 		$checkboxFields[$row["field_name"]] = 1;
 	}
 	
-	if(array_key_exists($row["field_name"],$recordData[$row["record"]])) {
+	if(is_array($recordData[$row["record"]]) && array_key_exists($row["field_name"],$recordData[$row["record"]])) {
 		if(!is_array($recordData[$row["record"]][$row["field_name"]])) {
 			$recordData[$row["record"]][$row["field_name"]] = [$recordData[$row["record"]][$row["field_name"]]];
 		}
@@ -110,14 +110,14 @@ foreach($recordData as $recordId => $recordDetails) {
 			$logicType = $logicTypes[$fieldKey];
 
 			if($lookupField == "") continue;
-            sort($recordDetails[$lookupField]);
-            
+			is_array($recordDetails[$lookupField]) && sort($recordDetails[$lookupField]);
+
 			## All search fields need to have a value for the record or else skip
 			if(!array_key_exists($lookupField,$recordDetails)) {
 				$recordMatches = false;
-                ## Log the records that were skipped and why
-                $skippedRecordMessages['skipped_record_'.$recordId] = "Skipping record $recordId as has blank values for $lookupField";
-                break;
+				## Log the records that were skipped and why
+				$skippedRecordMessages['skipped_record_'.$recordId] = "Skipping record $recordId as has blank values for $lookupField";
+				break;
 			}
 
 			if(is_array($recordDetails[$lookupField])) {
